@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { Helmet } from 'react-helmet';
 
 import Logo from '../assets/images/logo.png';
 import SocialMedia from './SocialMedia';
-import SocialMediaShare from './SocialMediaShare';
 
 function ImageLoader() {
   const { imageId } = useParams();
-  const imageUrlWithoutJpg = `https://pics.easy4music.com/mirock/${imageId}`;
+
   const [imageUrl, setImageUrl] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -42,29 +40,6 @@ function ImageLoader() {
 
   return (
     <div className={`flex flex-col items-center lg:justify-center h-screen bg-black`}>
-      <Helmet>
-        <title>MIROCK紐約美拍鏡</title>
-        <meta
-          property='og:title'
-          content='MIROCK紐約美拍鏡'
-        />
-        <meta
-          property='og:description'
-          content='MIROCK紐約美拍鏡'
-        />
-        <meta
-          property='og:image'
-          content={imageUrl}
-        />
-        <meta
-          property='og:url'
-          content={window.location.href}
-        />
-        <meta
-          property='og:type'
-          content='website'
-        />
-      </Helmet>
       {showTip && (
         <div className='absolute top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50 z-10'>
           <div className='bg-white p-4 rounded-lg shadow-lg text-center'>
@@ -113,9 +88,7 @@ function ImageLoader() {
               className='px-4 py-2 bg-blue-500 text-black rounded hover:bg-blue-700 transition duration-300'>
               怎麼保存圖片？
             </button>
-            <div className='text-3xl text-highlight-light z-10 text-white'>
-              <SocialMediaShare imageUrl={imageUrlWithoutJpg} />
-            </div>
+
             <div className='text-3xl text-highlight-light z-10 text-white'>
               <SocialMedia />
             </div>
