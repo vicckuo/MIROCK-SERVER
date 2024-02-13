@@ -4,7 +4,7 @@ import { BsFacebook } from 'react-icons/bs';
 export default function SocialMedia() {
   return (
     <>
-      <h2 className='flex items-center justify-center text-center mt-8'>Follow Us</h2>
+      <h2 className='flex items-center justify-center text-center'>Follow Us</h2>
       <div className='flex items-center justify-center'>
         <a
           target='_blank'
