@@ -16,7 +16,7 @@ export default function SocialMedia() {
         </a>
         <a
           target='_blank'
-          href='https://www.instagram.com/viamusicofficial/'
+          href='https://www.instagram.com/mirock.photobooth/'
           className='m-2'
           rel='noreferrer'
           aria-label='instagram'>
