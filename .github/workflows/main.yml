@@ -28,7 +28,7 @@ jobs:
 
       # Runs a set of commands using the runners shell
       - name: Sync files
-        uses: vicckuo/FTP-Deploy-Action@4.1.0 
+        uses: SamKirkland/FTP-Deploy-Action@4.1.0
         with: 
           server: pics.easy4music.com
           username: ${{ secrets.USERNAME }}
