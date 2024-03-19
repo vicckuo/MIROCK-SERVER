@@ -14,55 +14,44 @@ function ImageLoader() {
   const [error, setError] = useState(false);
   const [expired, setExpired] = useState(false); // 新增状态用于跟踪图片是否过期
   const [showTip, setShowTip] = useState(false); // 新增状态控制提示框显示
-  const [expirationDate, setExpirationDate] = useState(); // 添加状态变量
-  // 在ImageLoader组件中添加一个函数来检查图片是否过期
-  useEffect(() => {
-    const checkImageExpiration = async () => {
-      try {
-        const response = await fetch(imageUrl, { method: 'HEAD' });
-        const lastModified = response.headers.get('last-modified');
-        const lastModifiedDate = new Date(lastModified);
-        const currentDate = new Date();
-        const expirationDate = new Date(lastModifiedDate);
-        expirationDate.setDate(expirationDate.getDate() + 7); // 设置7天后过期
-
-        setExpirationDate(expirationDate); // 更新状态
-
-        console.log('lastModifiedDate', lastModifiedDate);
-        console.log('expirationDate', expirationDate);
-
-        if (currentDate > expirationDate) {
-          setExpired(true);
-          setLoading(false);
-        } else {
-          setLoading(false);
-          setExpired(false);
-        }
-      } catch (error) {
-        console.error('Error checking image expiration:', error);
-        setError(true);
-        setLoading(false);
-      }
-    };
-
-    checkImageExpiration();
-  }, [imageUrl, imageId]);
+  const [expirationDate, setExpirationDate] = useState(null); // 添加状态变量
 
   useEffect(() => {
     const imageUrl = `https://pics.easy4music.com/mirock/${imageId}.jpg`;
     setImageUrl(imageUrl);
 
     const image = new Image();
-    image.onload = () => {
-      setLoading(false);
-      setError(false);
-    };
+    image.onload = () => setLoading(false);
     image.onerror = () => {
       setLoading(false);
       setError(true);
     };
     image.src = imageUrl;
-  }, [imageId]);
+
+    const checkImageExpiration = async () => {
+      try {
+        const response = await fetch(imageUrl, { method: 'HEAD' });
+        const lastModified = response.headers.get('last-modified');
+        const lastModifiedDate = new Date(lastModified);
+        const newExpirationDate = new Date(lastModifiedDate.getTime() + 7 * 24 * 60 * 60 * 1000);
+
+        setExpirationDate(newExpirationDate);
+
+        if (new Date() > newExpirationDate) {
+          setExpired(true);
+        } else {
+          setExpired(false);
+        }
+      } catch (error) {
+        console.error('Error checking image expiration:', error);
+        setError(true);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkImageExpiration();
+  }, [imageId, imageUrl]);
 
   const countdownRenderer = ({ days, hours, minutes, seconds, completed }) => {
     if (completed) {
@@ -97,7 +86,7 @@ function ImageLoader() {
           圖片讀取中，請稍後...
         </div>
       )}
-      {!loading && !error && (
+      {!loading && !error && expirationDate && (
         <>
           <img
             src={imageUrl}
