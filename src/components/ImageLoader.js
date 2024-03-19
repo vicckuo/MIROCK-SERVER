@@ -4,6 +4,8 @@ import { useParams } from 'react-router-dom';
 import Logo from '../assets/images/logo.png';
 import SocialMedia from './SocialMedia';
 
+import Countdown from 'react-countdown';
+
 function ImageLoader() {
   const { imageId } = useParams();
 
@@ -11,23 +13,7 @@ function ImageLoader() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [showTip, setShowTip] = useState(false); // 新增状态控制提示框显示
-
-  useEffect(() => {
-    const imageUrl = `https://pics.easy4music.com/mirock/${imageId}.jpg`;
-    setImageUrl(imageUrl);
-
-    const image = new Image();
-    image.onload = () => {
-      setLoading(false);
-      setError(false);
-    };
-    image.onerror = () => {
-      setLoading(false);
-      setError(true);
-    };
-    image.src = imageUrl;
-  }, [imageId]);
-
+  const [expirationDate, setExpirationDate] = useState(new Date()); // 添加状态变量
   // 在ImageLoader组件中添加一个函数来检查图片是否过期
   useEffect(() => {
     const checkImageExpiration = async () => {
@@ -38,6 +24,8 @@ function ImageLoader() {
         const currentDate = new Date();
         const expirationDate = new Date(lastModifiedDate);
         expirationDate.setDate(expirationDate.getDate() + 7); // 设置7天后过期
+
+        setExpirationDate(expirationDate); // 更新状态
 
         console.log('lastModifiedDate', lastModifiedDate);
         console.log('expirationDate', expirationDate);
@@ -58,6 +46,22 @@ function ImageLoader() {
 
     checkImageExpiration();
   }, [imageUrl]);
+
+  useEffect(() => {
+    const imageUrl = `https://pics.easy4music.com/mirock/${imageId}.jpg`;
+    setImageUrl(imageUrl);
+
+    const image = new Image();
+    image.onload = () => {
+      setLoading(false);
+      setError(false);
+    };
+    image.onerror = () => {
+      setLoading(false);
+      setError(true);
+    };
+    image.src = imageUrl;
+  }, [imageId]);
 
   // 显示保存图片的提示
   const showSaveImageTip = () => {
@@ -86,7 +90,14 @@ function ImageLoader() {
             className='object-contain w-full h-1/2 pt-8'
             style={{ display: error ? 'none' : 'block' }}
           />
-
+          <Countdown
+            date={expirationDate}
+            renderer={(props) => (
+              <div className='text-white'>
+                照片剩餘時間：{props.days}天 {props.hours}時 {props.minutes}分 {props.seconds}秒
+              </div>
+            )}
+          />
           <div
             id='downloadButton'
             className='mt-4 relative'>
@@ -99,7 +110,7 @@ function ImageLoader() {
               怎麼保存圖片？
             </button>
 
-            <div className='text-3xl text-highlight-light z-10 mt-8 text-white flex flex-col items-center justify-center m-auto'>
+            <div className='text-3xl text-highlight-light z-10 text-white flex flex-col items-center justify-center m-auto'>
               <img
                 src={Logo}
                 alt='logo'
