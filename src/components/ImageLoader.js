@@ -12,6 +12,7 @@ function ImageLoader() {
   const [imageUrl, setImageUrl] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [expired, setExpired] = useState(false); // 新增状态用于跟踪图片是否过期
   const [showTip, setShowTip] = useState(false); // 新增状态控制提示框显示
   const [expirationDate, setExpirationDate] = useState(new Date()); // 添加状态变量
   // 在ImageLoader组件中添加一个函数来检查图片是否过期
@@ -31,11 +32,11 @@ function ImageLoader() {
         console.log('expirationDate', expirationDate);
 
         if (currentDate > expirationDate) {
-          setError(true);
+          setExpired(true);
           setLoading(false);
         } else {
           setLoading(false);
-          setError(false);
+          setExpired(false);
         }
       } catch (error) {
         console.error('Error checking image expiration:', error);
@@ -45,7 +46,7 @@ function ImageLoader() {
     };
 
     checkImageExpiration();
-  }, [imageUrl]);
+  }, [imageUrl, imageId]);
 
   useEffect(() => {
     const imageUrl = `https://pics.easy4music.com/mirock/${imageId}.jpg`;
@@ -62,6 +63,20 @@ function ImageLoader() {
     };
     image.src = imageUrl;
   }, [imageId]);
+
+  const countdownRenderer = ({ days, hours, minutes, seconds, completed }) => {
+    if (completed) {
+      // 时间已到，显示过期信息
+      return <div className='text-white my-4'>可下載時間已過期，謝謝。</div>;
+    } else {
+      // 时间未到，显示剩余时间
+      return (
+        <div className='text-white my-2'>
+          照片剩餘時間：{days}天 {hours}時 {minutes}分 {seconds}秒
+        </div>
+      );
+    }
+  };
 
   // 显示保存图片的提示
   const showSaveImageTip = () => {
@@ -88,15 +103,11 @@ function ImageLoader() {
             src={imageUrl}
             alt='Images'
             className='object-contain w-full h-1/2 pt-8'
-            style={{ display: error ? 'none' : 'block' }}
+            style={{ display: !expired ? 'block' : 'none' }}
           />
           <Countdown
             date={expirationDate}
-            renderer={(props) => (
-              <div className='text-white'>
-                照片剩餘時間：{props.days}天 {props.hours}時 {props.minutes}分 {props.seconds}秒
-              </div>
-            )}
+            renderer={countdownRenderer}
           />
           <div
             id='downloadButton'
@@ -104,6 +115,7 @@ function ImageLoader() {
             <button
               onClick={showSaveImageTip}
               style={{
+                display: !expired ? 'block' : 'none',
                 background: 'linear-gradient(45deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c)',
               }}
               className='px-4 py-2 bg-blue-500 text-black rounded hover:bg-blue-700 transition duration-300 flex items-center justify-center m-auto'>
