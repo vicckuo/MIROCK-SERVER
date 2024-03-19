@@ -28,6 +28,37 @@ function ImageLoader() {
     image.src = imageUrl;
   }, [imageId]);
 
+  // 在ImageLoader组件中添加一个函数来检查图片是否过期
+  useEffect(() => {
+    const checkImageExpiration = async () => {
+      try {
+        const response = await fetch(imageUrl, { method: 'HEAD' });
+        const lastModified = response.headers.get('last-modified');
+        const lastModifiedDate = new Date(lastModified);
+        const currentDate = new Date();
+        const expirationDate = new Date(lastModifiedDate);
+        expirationDate.setDate(expirationDate.getDate() + 7); // 设置7天后过期
+
+        console.log('lastModifiedDate', lastModifiedDate);
+        console.log('expirationDate', expirationDate);
+
+        if (currentDate > expirationDate) {
+          setError(true);
+          setLoading(false);
+        } else {
+          setLoading(false);
+          setError(false);
+        }
+      } catch (error) {
+        console.error('Error checking image expiration:', error);
+        setError(true);
+        setLoading(false);
+      }
+    };
+
+    checkImageExpiration();
+  }, [imageUrl]);
+
   // 显示保存图片的提示
   const showSaveImageTip = () => {
     setShowTip(true); // 显示提示框
