@@ -14,7 +14,7 @@ function ImageLoader() {
   const [error, setError] = useState(false);
   const [expired, setExpired] = useState(false); // 新增状态用于跟踪图片是否过期
   const [showTip, setShowTip] = useState(false); // 新增状态控制提示框显示
-  const [expirationDate, setExpirationDate] = useState(new Date()); // 添加状态变量
+  const [expirationDate, setExpirationDate] = useState(); // 添加状态变量
   // 在ImageLoader组件中添加一个函数来检查图片是否过期
   useEffect(() => {
     const checkImageExpiration = async () => {
