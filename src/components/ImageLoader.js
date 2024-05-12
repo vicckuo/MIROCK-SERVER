@@ -97,15 +97,19 @@ function ImageLoader() {
         </div>
       )}
       {!loading && !error && expirationDate && (
-        <React.Fragment className="z-10">
+        <>
           <img
             src={imageUrl}
             alt="Images"
-            className="object-contain w-full h-1/2 pt-8"
+            className="object-contain w-full h-1/2 pt-8 z-10"
             style={{ display: !expired ? "block" : "none" }}
           />
-          <Countdown date={expirationDate} renderer={countdownRenderer} />
-          <div id="downloadButton" className="mt-4 relative">
+          <Countdown
+            className="z-10"
+            date={expirationDate}
+            renderer={countdownRenderer}
+          />
+          <div id="downloadButton" className="mt-4 relative z-10">
             <button
               onClick={showSaveImageTip}
               style={{
@@ -118,7 +122,7 @@ function ImageLoader() {
               怎麼保存圖片？
             </button>
 
-            <div className="text-3xl text-highlight-light z-10 text-white flex flex-col items-center justify-center m-auto">
+            <div className="text-3xl z-10 text-highlight-light z-10 text-white flex flex-col items-center justify-center m-auto">
               <img
                 src={Logo}
                 alt="logo"
@@ -130,7 +134,7 @@ function ImageLoader() {
               <SocialMedia />
             </div>
           </div>
-        </React.Fragment>
+        </>
       )}
       {!loading && error && (
         <div className="text-lg text-white flex flex-col items-center justify-center m-auto z-10">
