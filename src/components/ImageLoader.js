@@ -13,7 +13,7 @@ function ImageLoader() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
     const [expired, setExpired] = useState(false); // 新增状态用于跟踪图片是否过期
-    const [showTip, setShowTip] = useState(false); // 新增状态控制提示框显示
+
     const [expirationDate, setExpirationDate] = useState(null); // 添加状态变量
 
     useEffect(() => {
@@ -75,16 +75,6 @@ function ImageLoader() {
                 </div>
             );
         }
-    };
-
-    // 显示保存图片的提示
-    const showSaveImageTip = () => {
-        setShowTip(true); // 显示提示框
-    };
-
-    // 关闭提示框
-    const closeTip = () => {
-        setShowTip(false); // 隐藏提示框
     };
 
     return (
@@ -173,25 +163,6 @@ function ImageLoader() {
                             }
                         />
                         <SocialMedia />
-                    </div>
-                </div>
-            )}
-            {showTip && (
-                <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50 z-10">
-                    <div className="bg-white p-4 rounded-lg shadow-lg text-center">
-                        <p>
-                            長按圖片，然後選擇“儲存到照片”，就會存到手機相簿囉！
-                        </p>
-                        <button
-                            style={{
-                                background:
-                                    "linear-gradient(45deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c)",
-                            }}
-                            className="mt-4 px-4 py-2 bg-blue-500 text-black rounded hover:bg-blue-700 transition duration-300"
-                            onClick={closeTip}
-                        >
-                            OK
-                        </button>
                     </div>
                 </div>
             )}
