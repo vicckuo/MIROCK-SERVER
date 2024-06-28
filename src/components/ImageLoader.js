@@ -6,6 +6,8 @@ import SocialMedia from "./SocialMedia";
 
 import Countdown from "react-countdown";
 
+import { saveAs } from "file-saver";
+
 function ImageLoader() {
     const { imageId } = useParams();
 
@@ -54,6 +56,10 @@ function ImageLoader() {
 
         checkImageExpiration();
     }, [imageId, imageUrl]);
+
+    const downloadImage = () => {
+        saveAs(imageUrl, `${imageId}.jpg`);
+    };
 
     const countdownRenderer = ({
         days,
@@ -111,9 +117,8 @@ function ImageLoader() {
                         renderer={countdownRenderer}
                     />
                     <div id="downloadButton" className="mt-4 relative z-10">
-                        <a
-                            href={imageUrl}
-                            download
+                        <button
+                            onClick={downloadImage}
                             style={{
                                 display: !expired ? "block" : "none",
                                 background:
@@ -122,7 +127,7 @@ function ImageLoader() {
                             className="px-4 py-2 text-center  text-black rounded transition duration-300 flex items-center justify-center m-auto"
                         >
                             保存圖片
-                        </a>
+                        </button>
 
                         <div className="text-3xl text-highlight-light z-10 text-white flex flex-col items-center justify-center m-auto">
                             <img
