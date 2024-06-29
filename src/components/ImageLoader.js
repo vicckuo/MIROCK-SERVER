@@ -55,15 +55,28 @@ function ImageLoader() {
         checkImageExpiration();
     }, [imageId, imageUrl]);
 
-    const downloadImage = () => {
-        const imageURL = `https://pics.easy4music.com/mirock/${imageId}.jpg`;
+    const downloadImage = async () => {
+        try {
+            const response = await fetch(imageUrl);
+            const blob = await response.blob();
 
-        const link = document.createElement("a");
-        link.href = imageURL;
-        link.download = "image.jpg"; // You can set a default name for the image
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+            // Create a URL for the Blob
+            const url = window.URL.createObjectURL(blob);
+
+            // Create a temporary anchor tag to trigger download
+            const a = document.createElement("a");
+            a.style.display = "none";
+            a.href = url;
+            a.download = "downloaded-image.jpg"; // Specify the file name for download
+            document.body.appendChild(a);
+            a.click();
+
+            // Clean up by revoking the Blob URL and removing the anchor tag
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        } catch (error) {
+            console.error("Download failed:", error);
+        }
     };
 
     const countdownRenderer = ({
