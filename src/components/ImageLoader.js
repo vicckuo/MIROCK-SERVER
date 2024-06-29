@@ -6,8 +6,6 @@ import SocialMedia from "./SocialMedia";
 
 import Countdown from "react-countdown";
 
-import { saveAs } from "file-saver";
-
 function ImageLoader() {
     const { imageId } = useParams();
 
@@ -58,7 +56,14 @@ function ImageLoader() {
     }, [imageId, imageUrl]);
 
     const downloadImage = () => {
-        saveAs(imageUrl, `${imageId}.jpg`);
+        const imageURL = `https://pics.easy4music.com/mirock/${imageId}.jpg`;
+
+        const link = document.createElement("a");
+        link.href = imageURL;
+        link.download = "image.jpg"; // You can set a default name for the image
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     };
 
     const countdownRenderer = ({
