@@ -59,21 +59,30 @@ function ImageLoader() {
         try {
             const response = await fetch(imageUrl);
             const blob = await response.blob();
+            const file = new File([blob], `${imageId}.jpg`, {
+                type: blob.type,
+            });
 
-            // Create a URL for the Blob
-            const url = window.URL.createObjectURL(blob);
-
-            // Create a temporary anchor tag to trigger download
-            const a = document.createElement("a");
-            a.style.display = "none";
-            a.href = url;
-            a.download = "downloaded-image.jpg"; // Specify the file name for download
-            document.body.appendChild(a);
-            a.click();
-
-            // Clean up by revoking the Blob URL and removing the anchor tag
-            window.URL.revokeObjectURL(url);
-            document.body.removeChild(a);
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                await navigator.share({
+                    files: [file],
+                    title: "Download Image",
+                    text: "Here is the image you wanted to download.",
+                });
+                console.log("Image shared successfully");
+            } else {
+                // Fallback method for devices that do not support Web Share API
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.style.display = "none";
+                a.href = url;
+                a.download = `${imageId}.jpg`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                console.log("Image downloaded using fallback method");
+            }
         } catch (error) {
             console.error("Download failed:", error);
         }
