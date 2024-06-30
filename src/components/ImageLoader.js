@@ -64,7 +64,9 @@ function ImageLoader() {
     const downloadImage = async () => {
         try {
             const response = await fetch(imageUrl);
+
             const blob = await response.blob();
+
             const file = new File([blob], `MIROCK紐約美拍鏡.jpg`, {
                 type: blob.type,
             });
@@ -95,7 +97,7 @@ function ImageLoader() {
     };
     const downloadVideo = async () => {
         try {
-            const response = await fetch(imageUrl);
+            const response = await fetch(mediaUrl);
             const blob = await response.blob();
             const file = new File([blob], `MIROCK紐約美拍鏡.mp4`, {
                 type: blob.type,
