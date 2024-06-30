@@ -59,15 +59,15 @@ function ImageLoader() {
         try {
             const response = await fetch(imageUrl);
             const blob = await response.blob();
-            const file = new File([blob], `${imageId}.jpg`, {
+            const file = new File([blob], `MIROCK紐約美拍鏡.jpg`, {
                 type: blob.type,
             });
 
             if (navigator.canShare && navigator.canShare({ files: [file] })) {
                 await navigator.share({
                     files: [file],
-                    title: "Download Image",
-                    text: "Here is the image you wanted to download.",
+                    title: "MIROCK紐約美拍鏡",
+                    text: "MIROCK紐約美拍鏡：https://www.easy4music.com/mirock",
                 });
                 console.log("Image shared successfully");
             } else {
@@ -76,7 +76,7 @@ function ImageLoader() {
                 const a = document.createElement("a");
                 a.style.display = "none";
                 a.href = url;
-                a.download = `${imageId}.jpg`;
+                a.download = `MIROCK紐約美拍鏡.jpg`;
                 document.body.appendChild(a);
                 a.click();
                 window.URL.revokeObjectURL(url);
