@@ -10,6 +10,7 @@ function ImageLoader() {
     const { imageId } = useParams();
 
     const [imageUrl, setImageUrl] = useState("");
+    const [mediaUrl, setMediaUrl] = useState("");
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
     const [expired, setExpired] = useState(false); // 新增状态用于跟踪图片是否过期
@@ -55,6 +56,11 @@ function ImageLoader() {
         checkImageExpiration();
     }, [imageId, imageUrl]);
 
+    useEffect(() => {
+        const mediaUrl = `https://pics.easy4music.com/mirock/${imageId}.mp4`;
+        setMediaUrl(mediaUrl);
+    }, [imageId, mediaUrl]);
+
     const downloadImage = async () => {
         try {
             const response = await fetch(imageUrl);
@@ -87,6 +93,38 @@ function ImageLoader() {
             console.error("Download failed:", error);
         }
     };
+    const downloadVideo = async () => {
+        try {
+            const response = await fetch(imageUrl);
+            const blob = await response.blob();
+            const file = new File([blob], `MIROCK紐約美拍鏡.mp4`, {
+                type: blob.type,
+            });
+
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                await navigator.share({
+                    files: [file],
+                    title: "MIROCK紐約美拍鏡",
+                    text: "MIROCK紐約美拍鏡：https://www.easy4music.com/mirock",
+                });
+                console.log("Image shared successfully");
+            } else {
+                // Fallback method for devices that do not support Web Share API
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.style.display = "none";
+                a.href = url;
+                a.download = `MIROCK紐約美拍鏡.mp4`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                console.log("Image downloaded using fallback method");
+            }
+        } catch (error) {
+            console.error("Download failed:", error);
+        }
+    };
 
     const countdownRenderer = ({
         days,
@@ -104,7 +142,7 @@ function ImageLoader() {
             // 时间未到，显示剩余时间
             return (
                 <div className="text-white my-2">
-                    照片剩餘時間：{days}天 {hours}時 {minutes}分 {seconds}秒
+                    下載剩餘時間：{days}天 {hours}時 {minutes}分 {seconds}秒
                 </div>
             );
         }
@@ -132,29 +170,53 @@ function ImageLoader() {
             )}
             {!loading && !error && expirationDate && (
                 <>
-                    <img
-                        src={imageUrl}
-                        alt="Images"
-                        className="object-contain w-full h-1/2 pt-8 z-10"
-                        style={{ display: !expired ? "block" : "none" }}
-                    />
+                    <div className="h-1/2  z-[99]">
+                        <img
+                            src={imageUrl}
+                            alt="Images"
+                            className="object-contain w-full h-1/2 pt-8"
+                            style={{ display: !expired ? "block" : "none" }}
+                        />
+                        <video
+                            src={mediaUrl}
+                            className="object-contain w-full h-1/2 pt-8 z-10"
+                            autoPlay
+                            loop
+                            muted
+                            playsInline
+                            style={{ display: !expired ? "block" : "none" }}
+                        />
+                    </div>
                     <Countdown
                         className="z-10"
                         date={expirationDate}
                         renderer={countdownRenderer}
                     />
                     <div id="downloadButton" className="mt-4 relative z-10">
-                        <button
-                            onClick={downloadImage}
-                            style={{
-                                display: !expired ? "block" : "none",
-                                background:
-                                    "linear-gradient(45deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c)",
-                            }}
-                            className="px-4 py-2 text-center  text-black rounded transition duration-300 flex items-center justify-center m-auto"
-                        >
-                            保存圖片
-                        </button>
+                        <div className="flex gap-4">
+                            <button
+                                onClick={downloadImage}
+                                style={{
+                                    display: !expired ? "block" : "none",
+                                    background:
+                                        "linear-gradient(45deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c)",
+                                }}
+                                className="px-4 py-2 text-center  text-black rounded transition duration-300 flex items-center justify-center m-auto"
+                            >
+                                保存圖片
+                            </button>
+                            <button
+                                onClick={downloadVideo}
+                                style={{
+                                    display: !expired ? "block" : "none",
+                                    background:
+                                        "linear-gradient(45deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c)",
+                                }}
+                                className="px-4 py-2 text-center  text-black rounded transition duration-300 flex items-center justify-center m-auto"
+                            >
+                                保存影片
+                            </button>
+                        </div>
 
                         <div className="text-3xl text-highlight-light z-10 text-white flex flex-col items-center justify-center m-auto">
                             <img
