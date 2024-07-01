@@ -101,13 +101,26 @@ function ImageLoader() {
                 type: blob.type,
             });
 
-            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            if (navigator.userAgent.indexOf("Windows") !== -1) {
+                // Fallback method for Windows devices
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.style.display = "none";
+                a.href = url;
+                a.download = `MIROCK紐約美拍鏡.jpg`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+            } else if (
+                navigator.canShare &&
+                navigator.canShare({ files: [file] })
+            ) {
                 await navigator.share({
                     files: [file],
                     title: "MIROCK紐約美拍鏡",
                     text: "MIROCK紐約美拍鏡：https://www.easy4music.com/mirock",
                 });
-                console.log("Image shared successfully");
             } else {
                 // Fallback method for devices that do not support Web Share API
                 const url = window.URL.createObjectURL(blob);
@@ -119,7 +132,6 @@ function ImageLoader() {
                 a.click();
                 window.URL.revokeObjectURL(url);
                 document.body.removeChild(a);
-                console.log("Image downloaded using fallback method");
             }
         } catch (error) {
             console.error("Download failed:", error);
@@ -133,7 +145,21 @@ function ImageLoader() {
                 type: blob.type,
             });
 
-            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            if (navigator.userAgent.indexOf("Windows") !== -1) {
+                // Fallback method for Windows devices
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.style.display = "none";
+                a.href = url;
+                a.download = `MIROCK紐約美拍鏡.mp4`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+            } else if (
+                navigator.canShare &&
+                navigator.canShare({ files: [file] })
+            ) {
                 await navigator.share({
                     files: [file],
                     title: "MIROCK紐約美拍鏡",
