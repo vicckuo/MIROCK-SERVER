@@ -19,7 +19,23 @@ function ImageLoader() {
 
     useEffect(() => {
         const imageUrl = `https://pics.easy4music.com/mirock/${imageId}.jpg`;
-        setImageUrl(imageUrl);
+        const checkMediaUrl = async () => {
+            try {
+                const response = await fetch(imageUrl, { method: "HEAD" });
+                if (response.status === 200) {
+                    setImageUrl(imageUrl);
+                } else if (response.status === 404) {
+                    console.error("imageUrl URL not found (404)");
+                    setError(true);
+                    setImageUrl(null);
+                }
+            } catch (error) {
+                console.error("Error checking imageUrl URL:", error);
+                setError(true);
+            }
+        };
+
+        checkMediaUrl();
 
         const image = new Image();
         image.onload = () => setLoading(false);
@@ -58,8 +74,28 @@ function ImageLoader() {
 
     useEffect(() => {
         const mediaUrl = `https://pics.easy4music.com/mirock/${imageId}.mp4`;
-        setMediaUrl(mediaUrl);
-    }, [imageId, mediaUrl]);
+
+        const checkMediaUrl = async () => {
+            try {
+                const response = await fetch(mediaUrl, { method: "HEAD" });
+                if (response.status === 200) {
+                    setMediaUrl(mediaUrl);
+                } else if (response.status === 404) {
+                    console.error("Media URL not found (404)");
+                    setError(true);
+                    setMediaUrl(null);
+                }
+            } catch (error) {
+                console.error("Error checking media URL:", error);
+                setError(true);
+            }
+        };
+
+        checkMediaUrl();
+    }, [imageId]);
+
+    console.log("mediaUrl", mediaUrl);
+    console.log("imageUrl", imageUrl);
 
     const downloadImage = async () => {
         try {
@@ -172,22 +208,30 @@ function ImageLoader() {
             )}
             {!loading && !error && expirationDate && (
                 <>
-                    <div className="h-1/2  z-[99]">
-                        <img
-                            src={imageUrl}
-                            alt="Images"
-                            className="object-contain w-full h-1/2 pt-8"
-                            style={{ display: !expired ? "block" : "none" }}
-                        />
-                        <video
-                            src={mediaUrl}
-                            className="object-contain w-full h-1/2 pt-8 z-10"
-                            autoPlay
-                            loop
-                            muted
-                            playsInline
-                            style={{ display: !expired ? "block" : "none" }}
-                        />
+                    <div className="h-1/2 z-[99]">
+                        {imageUrl && (
+                            <img
+                                src={imageUrl}
+                                alt="Images"
+                                className={`object-contain w-full ${
+                                    imageUrl && mediaUrl ? "h-1/2" : "h-full"
+                                } pt-8`}
+                                style={{ display: !expired ? "block" : "none" }}
+                            />
+                        )}
+                        {mediaUrl && (
+                            <video
+                                src={mediaUrl}
+                                className={`object-contain w-full ${
+                                    imageUrl && mediaUrl ? "h-1/2" : "h-full"
+                                } pt-8 z-10`}
+                                autoPlay
+                                loop
+                                muted
+                                playsInline
+                                style={{ display: !expired ? "block" : "none" }}
+                            />
+                        )}
                     </div>
                     <Countdown
                         className="z-10"
@@ -196,28 +240,32 @@ function ImageLoader() {
                     />
                     <div id="downloadButton" className="mt-4 relative z-10">
                         <div className="flex gap-4">
-                            <button
-                                onClick={downloadImage}
-                                style={{
-                                    display: !expired ? "block" : "none",
-                                    background:
-                                        "linear-gradient(45deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c)",
-                                }}
-                                className="px-4 py-2 text-center  text-black rounded transition duration-300 flex items-center justify-center m-auto"
-                            >
-                                保存圖片
-                            </button>
-                            <button
-                                onClick={downloadVideo}
-                                style={{
-                                    display: !expired ? "block" : "none",
-                                    background:
-                                        "linear-gradient(45deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c)",
-                                }}
-                                className="px-4 py-2 text-center  text-black rounded transition duration-300 flex items-center justify-center m-auto"
-                            >
-                                保存影片
-                            </button>
+                            {imageUrl && (
+                                <button
+                                    onClick={downloadImage}
+                                    style={{
+                                        display: !expired ? "block" : "none",
+                                        background:
+                                            "linear-gradient(45deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c)",
+                                    }}
+                                    className="px-4 py-2 text-center  text-black rounded transition duration-300 flex items-center justify-center m-auto"
+                                >
+                                    保存圖片
+                                </button>
+                            )}
+                            {mediaUrl && (
+                                <button
+                                    onClick={downloadVideo}
+                                    style={{
+                                        display: !expired ? "block" : "none",
+                                        background:
+                                            "linear-gradient(45deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c)",
+                                    }}
+                                    className="px-4 py-2 text-center  text-black rounded transition duration-300 flex items-center justify-center m-auto"
+                                >
+                                    保存影片
+                                </button>
+                            )}
                         </div>
 
                         <div className="text-3xl text-highlight-light z-10 text-white flex flex-col items-center justify-center m-auto">
