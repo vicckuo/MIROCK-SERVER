@@ -19,7 +19,7 @@ function ImageLoader() {
 
     useEffect(() => {
         const imageUrl = `https://pics.easy4music.com/mirock/${imageId}.jpg`;
-        const checkMediaUrl = async () => {
+        const checkImageUrl = async () => {
             try {
                 const response = await fetch(imageUrl, { method: "HEAD" });
                 if (response.status === 200) {
@@ -35,7 +35,7 @@ function ImageLoader() {
             }
         };
 
-        checkMediaUrl();
+        checkImageUrl();
 
         const image = new Image();
         image.onload = () => setLoading(false);
@@ -70,7 +70,7 @@ function ImageLoader() {
         };
 
         checkImageExpiration();
-    }, [imageId, imageUrl]);
+    }, [imageId]);
 
     useEffect(() => {
         const mediaUrl = `https://pics.easy4music.com/mirock/${imageId}.mp4`;
@@ -92,7 +92,7 @@ function ImageLoader() {
         };
 
         checkMediaUrl();
-    }, [imageId, mediaUrl]);
+    }, [imageId]);
 
     const downloadImage = async () => {
         try {
