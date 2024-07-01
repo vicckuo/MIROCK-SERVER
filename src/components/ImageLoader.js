@@ -26,12 +26,10 @@ function ImageLoader() {
                     setImageUrl(imageUrl);
                 } else if (response.status === 404) {
                     console.error("imageUrl URL not found (404)");
-                    setError(true);
                     setImageUrl(null);
                 }
             } catch (error) {
                 console.error("Error checking imageUrl URL:", error);
-                setError(true);
             }
         };
 
@@ -82,12 +80,11 @@ function ImageLoader() {
                     setMediaUrl(mediaUrl);
                 } else if (response.status === 404) {
                     console.error("Media URL not found (404)");
-                    setError(true);
+
                     setMediaUrl(null);
                 }
             } catch (error) {
                 console.error("Error checking media URL:", error);
-                setError(true);
             }
         };
 
