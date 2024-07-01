@@ -92,10 +92,7 @@ function ImageLoader() {
         };
 
         checkMediaUrl();
-    }, [imageId]);
-
-    console.log("mediaUrl", mediaUrl);
-    console.log("imageUrl", imageUrl);
+    }, [imageId, mediaUrl]);
 
     const downloadImage = async () => {
         try {
