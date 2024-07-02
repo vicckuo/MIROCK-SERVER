@@ -145,8 +145,10 @@ function ImageLoader() {
                 type: blob.type,
             });
 
-            if (navigator.userAgent.indexOf("Windows") !== -1) {
-                // Fallback method for Windows devices
+            if (
+                navigator.userAgent.indexOf("Windows") !== -1 ||
+                navigator.userAgent.indexOf("Android") !== -1
+            ) {
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement("a");
                 a.style.display = "none";
@@ -165,9 +167,7 @@ function ImageLoader() {
                     title: "MIROCK紐約美拍鏡",
                     text: "MIROCK紐約美拍鏡：https://www.easy4music.com/mirock",
                 });
-                console.log("Image shared successfully");
             } else {
-                // Fallback method for devices that do not support Web Share API
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement("a");
                 a.style.display = "none";
@@ -177,7 +177,6 @@ function ImageLoader() {
                 a.click();
                 window.URL.revokeObjectURL(url);
                 document.body.removeChild(a);
-                console.log("Image downloaded using fallback method");
             }
         } catch (error) {
             console.error("Download failed:", error);
