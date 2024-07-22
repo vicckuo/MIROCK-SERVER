@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 
 import Logo from "../assets/images/logo.png";
 import SocialMedia from "./SocialMedia";
@@ -8,6 +8,7 @@ import Countdown from "react-countdown";
 
 function ImageLoader() {
     const { imageId } = useParams();
+    const location = useLocation();
 
     const [imageUrl, setImageUrl] = useState("");
     const [mediaUrl, setMediaUrl] = useState("");
@@ -17,8 +18,14 @@ function ImageLoader() {
 
     const [expirationDate, setExpirationDate] = useState(null); // 添加状态变量
 
+    const pathSegments = location.pathname.split("/");
+    const vendor = pathSegments[1] || "mirock";
+
     useEffect(() => {
-        const imageUrl = `https://pics.easy4music.com/mirock/${imageId}.jpg`;
+        const imageUrl =
+            vendor === "mirock"
+                ? `https://pics.easy4music.com/mirock/${imageId}.jpg`
+                : `https://pics.easy4music.com/mirock/${vendor}/${imageId}.jpg`;
         const checkImageUrl = async () => {
             try {
                 const response = await fetch(imageUrl, { method: "HEAD" });
@@ -68,10 +75,13 @@ function ImageLoader() {
         };
 
         checkImageExpiration();
-    }, [imageId]);
+    }, [imageId, vendor]);
 
     useEffect(() => {
-        const mediaUrl = `https://pics.easy4music.com/mirock/${imageId}.mp4`;
+        const mediaUrl =
+            vendor === "mirock"
+                ? `https://pics.easy4music.com/mirock/${imageId}.mp4`
+                : `https://pics.easy4music.com/mirock/${vendor}/${imageId}.mp4`;
 
         const checkMediaUrl = async () => {
             try {
@@ -89,7 +99,7 @@ function ImageLoader() {
         };
 
         checkMediaUrl();
-    }, [imageId]);
+    }, [imageId, vendor]);
 
     const downloadImage = async () => {
         try {
