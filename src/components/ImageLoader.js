@@ -218,15 +218,17 @@ function ImageLoader() {
 
     return (
         <div className="flex flex-col items-center lg:justify-center h-screen bg-black relative overflow-hidden">
-            <div
-                className="absolute inset-0 opacity-75"
-                style={{
-                    backgroundImage: `url('/mirock.png')`,
-                    backgroundSize: "10%",
-                    transform: "rotate(-45deg) scale(2.5)",
-                    backgroundRepeat: "space",
-                }}
-            ></div>
+            {vendor1 === "mirock" && /^\d+$/.test(vendor2) && (
+                <div
+                    className="absolute inset-0 opacity-75"
+                    style={{
+                        backgroundImage: `url('/mirock.png')`,
+                        backgroundSize: "10%",
+                        transform: "rotate(-45deg) scale(2.5)",
+                        backgroundRepeat: "space",
+                    }}
+                ></div>
+            )}
 
             {loading && (
                 <div
@@ -298,18 +300,20 @@ function ImageLoader() {
                             )}
                         </div>
 
-                        <div className="text-3xl text-highlight-light z-10 text-white flex flex-col items-center justify-center m-auto">
-                            <img
-                                src={Logo}
-                                alt="logo"
-                                className="w-40 h-40 lg:w-48 lg:h-48 overflow-hidden cursor-pointer"
-                                onClick={() =>
-                                    (window.location.href =
-                                        "https://www.easy4music.com/mirock")
-                                }
-                            />
-                            <SocialMedia />
-                        </div>
+                        {vendor1 === "mirock" && /^\d+$/.test(vendor2) && (
+                            <div className="text-3xl text-highlight-light z-10 text-white flex flex-col items-center justify-center m-auto">
+                                <img
+                                    src={Logo}
+                                    alt="logo"
+                                    className="w-40 h-40 lg:w-48 lg:h-48 overflow-hidden cursor-pointer"
+                                    onClick={() =>
+                                        (window.location.href =
+                                            "https://www.easy4music.com/mirock")
+                                    }
+                                />
+                                <SocialMedia />
+                            </div>
+                        )}
                     </div>
                 </>
             )}
@@ -326,18 +330,20 @@ function ImageLoader() {
                     >
                         重新整理
                     </button>
-                    <div className="text-3xl z-10 text-highlight-light text-white flex flex-col items-center justify-center m-auto absolute bottom-0 mb-4">
-                        <img
-                            src={Logo}
-                            alt="logo"
-                            className="w-40 h-40 lg:w-48 lg:h-48 overflow-hidden cursor-pointer"
-                            onClick={() =>
-                                (window.location.href =
-                                    "https://www.easy4music.com/mirock")
-                            }
-                        />
-                        <SocialMedia />
-                    </div>
+                    {vendor1 === "mirock" && /^\d+$/.test(vendor2) && (
+                        <div className="text-3xl z-10 text-highlight-light text-white flex flex-col items-center justify-center m-auto absolute bottom-0 mb-4">
+                            <img
+                                src={Logo}
+                                alt="logo"
+                                className="w-40 h-40 lg:w-48 lg:h-48 overflow-hidden cursor-pointer"
+                                onClick={() =>
+                                    (window.location.href =
+                                        "https://www.easy4music.com/mirock")
+                                }
+                            />
+                            <SocialMedia />
+                        </div>
+                    )}
                 </div>
             )}
         </div>
