@@ -19,13 +19,14 @@ function ImageLoader() {
     const [expirationDate, setExpirationDate] = useState(null); // 添加状态变量
 
     const pathSegments = location.pathname.split("/");
-    const vendor = pathSegments[2] || "mirock";
+    const vendor1 = pathSegments[1];
+    const vendor2 = pathSegments[2];
 
     useEffect(() => {
         const imageUrl =
-            vendor === "mirock"
+            vendor1 === "mirock" && /^\d+$/.test(vendor2)
                 ? `https://pics.easy4music.com/mirock/${imageId}.jpg`
-                : `https://pics.easy4music.com/mirock/${vendor}/${imageId}.jpg`;
+                : `https://pics.easy4music.com/mirock/${vendor2}/${imageId}.jpg`;
         const checkImageUrl = async () => {
             try {
                 const response = await fetch(imageUrl, { method: "HEAD" });
@@ -75,13 +76,13 @@ function ImageLoader() {
         };
 
         checkImageExpiration();
-    }, [imageId, vendor]);
+    }, [imageId, vendor1, vendor2]);
 
     useEffect(() => {
         const mediaUrl =
-            vendor === "mirock"
+            vendor1 === "mirock" && /^\d+$/.test(vendor2)
                 ? `https://pics.easy4music.com/mirock/${imageId}.mp4`
-                : `https://pics.easy4music.com/mirock/${vendor}/${imageId}.mp4`;
+                : `https://pics.easy4music.com/mirock/${vendor2}/${imageId}.mp4`;
 
         const checkMediaUrl = async () => {
             try {
@@ -99,7 +100,7 @@ function ImageLoader() {
         };
 
         checkMediaUrl();
-    }, [imageId, vendor]);
+    }, [imageId, vendor1, vendor2]);
 
     const downloadImage = async () => {
         try {
