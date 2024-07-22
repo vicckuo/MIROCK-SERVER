@@ -19,7 +19,7 @@ function ImageLoader() {
     const [expirationDate, setExpirationDate] = useState(null); // 添加状态变量
 
     const pathSegments = location.pathname.split("/");
-    const vendor = pathSegments[1] || "mirock";
+    const vendor = pathSegments[2] || "mirock";
 
     useEffect(() => {
         const imageUrl =
