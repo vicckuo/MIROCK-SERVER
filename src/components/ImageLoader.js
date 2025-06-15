@@ -27,55 +27,59 @@ function ImageLoader() {
             vendor1 === "mirock" && /^\d+$/.test(vendor2)
                 ? `https://pics.easy4music.com/mirock/${imageId}.jpg`
                 : `https://pics.easy4music.com/mirock/${vendor2}/${imageId}.jpg`;
-        const checkImageUrl = async () => {
+        
+        const loadImageAndCheckExpiration = async () => {
             try {
+                // 首先檢查圖片是否存在
                 const response = await fetch(imageUrl, { method: "HEAD" });
+                
                 if (response.status === 200) {
+                    // 圖片存在，設置 URL
                     setImageUrl(imageUrl);
+                    
+                    // 檢查過期時間
+                    const lastModified = response.headers.get("last-modified");
+                    if (lastModified) {
+                        const lastModifiedDate = new Date(lastModified);
+                        const newExpirationDate = new Date(
+                            lastModifiedDate.getTime() + 7 * 24 * 60 * 60 * 1000
+                        );
+                        
+                        setExpirationDate(newExpirationDate);
+                        
+                        if (new Date() > newExpirationDate) {
+                            setExpired(true);
+                        } else {
+                            setExpired(false);
+                        }
+                    }
+                    
+                    // 預載圖片
+                    const image = new Image();
+                    image.onload = () => {
+                        setLoading(false);
+                        setError(false);
+                    };
+                    image.onerror = () => {
+                        setLoading(false);
+                        setError(true);
+                    };
+                    image.src = imageUrl;
+                    
                 } else if (response.status === 404) {
-                    console.error("imageUrl URL not found (404)");
+                    console.error("Image URL not found (404)");
                     setImageUrl(null);
+                    setLoading(false);
+                    setError(true);
                 }
             } catch (error) {
-                console.error("Error checking imageUrl URL:", error);
-            }
-        };
-
-        checkImageUrl();
-
-        const image = new Image();
-        image.onload = () => setLoading(false);
-        image.onerror = () => {
-            setLoading(false);
-            setError(true);
-        };
-        image.src = imageUrl;
-
-        const checkImageExpiration = async () => {
-            try {
-                const response = await fetch(imageUrl, { method: "HEAD" });
-                const lastModified = response.headers.get("last-modified");
-                const lastModifiedDate = new Date(lastModified);
-                const newExpirationDate = new Date(
-                    lastModifiedDate.getTime() + 7 * 24 * 60 * 60 * 1000
-                );
-
-                setExpirationDate(newExpirationDate);
-
-                if (new Date() > newExpirationDate) {
-                    setExpired(true);
-                } else {
-                    setExpired(false);
-                }
-            } catch (error) {
-                console.error("Error checking image expiration:", error);
-                setError(true);
-            } finally {
+                console.error("Error loading image:", error);
                 setLoading(false);
+                setError(true);
             }
         };
 
-        checkImageExpiration();
+        loadImageAndCheckExpiration();
     }, [imageId, vendor1, vendor2]);
 
     useEffect(() => {
