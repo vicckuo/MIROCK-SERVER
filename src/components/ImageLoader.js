@@ -28,10 +28,23 @@ function ImageLoader() {
                 ? `https://pics.easy4music.com/mirock/${imageId}.jpg`
                 : `https://pics.easy4music.com/mirock/${vendor2}/${imageId}.jpg`;
         
-        const loadImageAndCheckExpiration = async () => {
+        const loadImageAndCheckExpiration = async (retryCount = 0) => {
+            const maxRetries = 3;
+            
             try {
-                // 首先檢查圖片是否存在
-                const response = await fetch(imageUrl, { method: "HEAD" });
+                // 添加重試延遲
+                if (retryCount > 0) {
+                    await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
+                }
+                
+                // 檢查圖片是否存在，添加錯誤處理選項
+                const response = await fetch(imageUrl, { 
+                    method: "HEAD",
+                    cache: "no-cache", // 避免緩存問題
+                    headers: {
+                        'Cache-Control': 'no-cache'
+                    }
+                });
                 
                 if (response.status === 200) {
                     // 圖片存在，設置 URL
@@ -54,17 +67,26 @@ function ImageLoader() {
                         }
                     }
                     
-                    // 預載圖片
-                    const image = new Image();
-                    image.onload = () => {
-                        setLoading(false);
-                        setError(false);
+                    // 預載圖片，添加重試邏輯
+                    const loadImageWithRetry = (attempts = 0) => {
+                        const image = new Image();
+                        image.onload = () => {
+                            setLoading(false);
+                            setError(false);
+                        };
+                        image.onerror = () => {
+                            if (attempts < 2) {
+                                console.log(`圖片載入失敗，重試第 ${attempts + 1} 次...`);
+                                setTimeout(() => loadImageWithRetry(attempts + 1), 1000);
+                            } else {
+                                setLoading(false);
+                                setError(true);
+                            }
+                        };
+                        image.src = imageUrl;
                     };
-                    image.onerror = () => {
-                        setLoading(false);
-                        setError(true);
-                    };
-                    image.src = imageUrl;
+                    
+                    loadImageWithRetry();
                     
                 } else if (response.status === 404) {
                     console.error("Image URL not found (404)");
@@ -73,9 +95,19 @@ function ImageLoader() {
                     setError(true);
                 }
             } catch (error) {
-                console.error("Error loading image:", error);
-                setLoading(false);
-                setError(true);
+                console.error(`Error loading image (attempt ${retryCount + 1}):`, error);
+                
+                // 網絡錯誤重試邏輯
+                if (retryCount < maxRetries && 
+                    (error.name === 'TypeError' || 
+                     error.message.includes('QUIC') || 
+                     error.message.includes('network'))) {
+                    console.log(`網絡錯誤，${2000 * (retryCount + 1)}ms 後重試...`);
+                    setTimeout(() => loadImageAndCheckExpiration(retryCount + 1), 2000 * (retryCount + 1));
+                } else {
+                    setLoading(false);
+                    setError(true);
+                }
             }
         };
 
@@ -88,18 +120,37 @@ function ImageLoader() {
                 ? `https://pics.easy4music.com/mirock/${imageId}.mp4`
                 : `https://pics.easy4music.com/mirock/${vendor2}/${imageId}.mp4`;
 
-        const checkMediaUrl = async () => {
+        const checkMediaUrl = async (retryCount = 0) => {
+            const maxRetries = 2;
+            
             try {
-                const response = await fetch(mediaUrl, { method: "HEAD" });
+                if (retryCount > 0) {
+                    await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
+                }
+                
+                const response = await fetch(mediaUrl, { 
+                    method: "HEAD",
+                    cache: "no-cache",
+                    headers: {
+                        'Cache-Control': 'no-cache'
+                    }
+                });
+                
                 if (response.status === 200) {
                     setMediaUrl(mediaUrl);
                 } else if (response.status === 404) {
                     console.error("Media URL not found (404)");
-
                     setMediaUrl(null);
                 }
             } catch (error) {
-                console.error("Error checking media URL:", error);
+                console.error(`Error checking media URL (attempt ${retryCount + 1}):`, error);
+                
+                if (retryCount < maxRetries) {
+                    console.log(`媒體文件檢查失敗，重試中...`);
+                    setTimeout(() => checkMediaUrl(retryCount + 1), 1500 * (retryCount + 1));
+                } else {
+                    setMediaUrl(null);
+                }
             }
         };
 
