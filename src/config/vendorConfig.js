@@ -40,7 +40,7 @@ export const vendorConfigs = {
             logo: {
                 src: TOSLogo, // 你可以替換成 TOS 專用的 logo
                 alt: "TOS Logo",
-                clickUrl: "https://www.tos-example.com",
+                clickUrl: "",
                 className:
                     "w-40 h-40 lg:w-48 lg:h-48 overflow-hidden cursor-pointer",
             },
