@@ -4,6 +4,8 @@ import { useLocation, useParams } from "react-router-dom";
 import SocialMedia from "./SocialMedia";
 
 import Countdown from "react-countdown";
+import { getVendorConfig } from "../config/vendorConfig";
+import VendorLogo from "./VendorLogo";
 
 function ImageLoader() {
     const { imageId } = useParams();
