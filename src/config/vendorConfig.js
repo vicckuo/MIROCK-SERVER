@@ -1,4 +1,5 @@
 import Logo from "../assets/images/logo.png";
+import TOSLogo from "../assets/images/tos-logo.png";
 
 // Vendor configurations
 export const vendorConfigs = {
@@ -37,8 +38,8 @@ export const vendorConfigs = {
         // 特殊配置
         tos: {
             logo: {
-                src: "", // 你可以替換成 TOS 專用的 logo
-                alt: "",
+                src: TOSLogo, // 你可以替換成 TOS 專用的 logo
+                alt: "TOS Logo",
                 clickUrl: "https://www.tos-example.com",
                 className:
                     "w-40 h-40 lg:w-48 lg:h-48 overflow-hidden cursor-pointer",
