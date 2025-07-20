@@ -4,7 +4,13 @@ import { useLocation, useParams } from "react-router-dom";
 import SocialMedia from "./SocialMedia";
 
 import Countdown from "react-countdown";
-import { getVendorConfig } from "../config/vendorConfig";
+import {
+    getVendorConfig,
+    hasValidLogo,
+    hasValidSocialMedia,
+    shouldShowBackground,
+    shouldShowBranding,
+} from "../config/vendorConfig";
 import VendorLogo from "./VendorLogo";
 
 function ImageLoader() {
@@ -24,7 +30,7 @@ function ImageLoader() {
     const vendor2 = pathSegments[2];
 
     useEffect(() => {
-        const vendorConfig = getVendorConfig(vendor1);
+        const vendorConfig = getVendorConfig(vendor1, vendor2);
         if (!vendorConfig || !vendorConfig.api) {
             setError(true);
             setLoading(false);
@@ -136,7 +142,7 @@ function ImageLoader() {
     }, [imageId, vendor1, vendor2]);
 
     useEffect(() => {
-        const vendorConfig = getVendorConfig(vendor1);
+        const vendorConfig = getVendorConfig(vendor1, vendor2);
         if (!vendorConfig || !vendorConfig.api) {
             setMediaUrl(null);
             return;
@@ -303,13 +309,23 @@ function ImageLoader() {
         }
     };
 
+    // 取得當前配置
+    const currentConfig = getVendorConfig(vendor1, vendor2);
+    const showBackground = shouldShowBackground(vendor1, vendor2);
+    const showBranding = shouldShowBranding(vendor1, vendor2);
+
     return (
-        <div className="flex flex-col items-center lg:justify-center h-screen bg-black relative overflow-hidden">
-            {getVendorConfig(vendor1) && /^\d+$/.test(vendor2) && (
+        <div
+            className="flex flex-col items-center lg:justify-center h-screen relative overflow-hidden"
+            style={{
+                backgroundColor: currentConfig?.background?.color || "black",
+            }}
+        >
+            {showBackground && (
                 <div
                     className="absolute inset-0 opacity-75"
                     style={{
-                        backgroundImage: `url('/${vendor1}.png')`, // 動態背景圖片
+                        backgroundImage: `url('${currentConfig.background.image}')`,
                         backgroundSize: "10%",
                         transform: "rotate(-45deg) scale(2.5)",
                         backgroundRepeat: "space",
@@ -387,21 +403,21 @@ function ImageLoader() {
                             )}
                         </div>
 
-                        {getVendorConfig(vendor1) && /^\d+$/.test(vendor2) && (
+                        {showBranding && (
                             <div className="text-3xl text-highlight-light z-10 text-white flex flex-col items-center justify-center m-auto">
-                                <VendorLogo
-                                    logoConfig={getVendorConfig(vendor1)?.logo}
-                                />
-                                <SocialMedia
-                                    socialLinks={
-                                        getVendorConfig(vendor1)?.socialMedia
-                                            ?.links
-                                    }
-                                    title={
-                                        getVendorConfig(vendor1)?.socialMedia
-                                            ?.title
-                                    }
-                                />
+                                {hasValidLogo(currentConfig) && (
+                                    <VendorLogo
+                                        logoConfig={currentConfig.logo}
+                                    />
+                                )}
+                                {hasValidSocialMedia(currentConfig) && (
+                                    <SocialMedia
+                                        socialLinks={
+                                            currentConfig.socialMedia.links
+                                        }
+                                        title={currentConfig.socialMedia.title}
+                                    />
+                                )}
                             </div>
                         )}
                     </div>
@@ -420,24 +436,21 @@ function ImageLoader() {
                     >
                         重新整理
                     </button>
-                    {(vendor1 === "mirock" || vendor1 === "tos") &&
-                        /^\d+$/.test(vendor2) && (
-                            <div className="text-3xl z-10 text-highlight-light text-white flex flex-col items-center justify-center m-auto absolute bottom-0 mb-4">
-                                <VendorLogo
-                                    logoConfig={getVendorConfig(vendor1)?.logo}
-                                />
+                    {showBranding && (
+                        <div className="text-3xl z-10 text-highlight-light text-white flex flex-col items-center justify-center m-auto absolute bottom-0 mb-4">
+                            {hasValidLogo(currentConfig) && (
+                                <VendorLogo logoConfig={currentConfig.logo} />
+                            )}
+                            {hasValidSocialMedia(currentConfig) && (
                                 <SocialMedia
                                     socialLinks={
-                                        getVendorConfig(vendor1)?.socialMedia
-                                            ?.links
+                                        currentConfig.socialMedia.links
                                     }
-                                    title={
-                                        getVendorConfig(vendor1)?.socialMedia
-                                            ?.title
-                                    }
+                                    title={currentConfig.socialMedia.title}
                                 />
-                            </div>
-                        )}
+                            )}
+                        </div>
+                    )}
                 </div>
             )}
         </div>
