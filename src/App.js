@@ -13,6 +13,10 @@ function App() {
                         path="/mirock/hamilton/:imageId"
                         element={<ImageLoader />}
                     />
+                    <Route
+                        path="/mirock/tos/:imageId"
+                        element={<ImageLoader />}
+                    />
                 </Routes>
             </div>
         </Router>
