@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
 
-import Logo from "../assets/images/logo.png";
 import SocialMedia from "./SocialMedia";
 
 import Countdown from "react-countdown";
@@ -23,33 +22,39 @@ function ImageLoader() {
     const vendor2 = pathSegments[2];
 
     useEffect(() => {
-        const imageUrl =
-            vendor1 === "mirock" && /^\d+$/.test(vendor2)
-                ? `https://pics.easy4music.com/mirock/${imageId}.jpg`
-                : `https://pics.easy4music.com/mirock/${vendor2}/${imageId}.jpg`;
-        
+        const vendorConfig = getVendorConfig(vendor1);
+        if (!vendorConfig || !vendorConfig.api) {
+            setError(true);
+            setLoading(false);
+            return;
+        }
+
+        const imageUrl = vendorConfig.api.getImageUrl(vendor2, imageId);
+
         const loadImageAndCheckExpiration = async (retryCount = 0) => {
             const maxRetries = 3;
-            
+
             try {
                 // 添加重試延遲
                 if (retryCount > 0) {
-                    await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
+                    await new Promise((resolve) =>
+                        setTimeout(resolve, 1000 * retryCount)
+                    );
                 }
-                
+
                 // 檢查圖片是否存在，添加錯誤處理選項
-                const response = await fetch(imageUrl, { 
+                const response = await fetch(imageUrl, {
                     method: "HEAD",
                     cache: "no-cache", // 避免緩存問題
                     headers: {
-                        'Cache-Control': 'no-cache'
-                    }
+                        "Cache-Control": "no-cache",
+                    },
                 });
-                
+
                 if (response.status === 200) {
                     // 圖片存在，設置 URL
                     setImageUrl(imageUrl);
-                    
+
                     // 檢查過期時間
                     const lastModified = response.headers.get("last-modified");
                     if (lastModified) {
@@ -57,16 +62,16 @@ function ImageLoader() {
                         const newExpirationDate = new Date(
                             lastModifiedDate.getTime() + 7 * 24 * 60 * 60 * 1000
                         );
-                        
+
                         setExpirationDate(newExpirationDate);
-                        
+
                         if (new Date() > newExpirationDate) {
                             setExpired(true);
                         } else {
                             setExpired(false);
                         }
                     }
-                    
+
                     // 預載圖片，添加重試邏輯
                     const loadImageWithRetry = (attempts = 0) => {
                         const image = new Image();
@@ -76,8 +81,13 @@ function ImageLoader() {
                         };
                         image.onerror = () => {
                             if (attempts < 2) {
-                                console.log(`圖片載入失敗，重試第 ${attempts + 1} 次...`);
-                                setTimeout(() => loadImageWithRetry(attempts + 1), 1000);
+                                console.log(
+                                    `圖片載入失敗，重試第 ${attempts + 1} 次...`
+                                );
+                                setTimeout(
+                                    () => loadImageWithRetry(attempts + 1),
+                                    1000
+                                );
                             } else {
                                 setLoading(false);
                                 setError(true);
@@ -85,9 +95,8 @@ function ImageLoader() {
                         };
                         image.src = imageUrl;
                     };
-                    
+
                     loadImageWithRetry();
-                    
                 } else if (response.status === 404) {
                     console.error("Image URL not found (404)");
                     setImageUrl(null);
@@ -95,15 +104,25 @@ function ImageLoader() {
                     setError(true);
                 }
             } catch (error) {
-                console.error(`Error loading image (attempt ${retryCount + 1}):`, error);
-                
+                console.error(
+                    `Error loading image (attempt ${retryCount + 1}):`,
+                    error
+                );
+
                 // 網絡錯誤重試邏輯
-                if (retryCount < maxRetries && 
-                    (error.name === 'TypeError' || 
-                     error.message.includes('QUIC') || 
-                     error.message.includes('network'))) {
-                    console.log(`網絡錯誤，${2000 * (retryCount + 1)}ms 後重試...`);
-                    setTimeout(() => loadImageAndCheckExpiration(retryCount + 1), 2000 * (retryCount + 1));
+                if (
+                    retryCount < maxRetries &&
+                    (error.name === "TypeError" ||
+                        error.message.includes("QUIC") ||
+                        error.message.includes("network"))
+                ) {
+                    console.log(
+                        `網絡錯誤，${2000 * (retryCount + 1)}ms 後重試...`
+                    );
+                    setTimeout(
+                        () => loadImageAndCheckExpiration(retryCount + 1),
+                        2000 * (retryCount + 1)
+                    );
                 } else {
                     setLoading(false);
                     setError(true);
@@ -115,27 +134,32 @@ function ImageLoader() {
     }, [imageId, vendor1, vendor2]);
 
     useEffect(() => {
-        const mediaUrl =
-            vendor1 === "mirock" && /^\d+$/.test(vendor2)
-                ? `https://pics.easy4music.com/mirock/${imageId}.mp4`
-                : `https://pics.easy4music.com/mirock/${vendor2}/${imageId}.mp4`;
+        const vendorConfig = getVendorConfig(vendor1);
+        if (!vendorConfig || !vendorConfig.api) {
+            setMediaUrl(null);
+            return;
+        }
+
+        const mediaUrl = vendorConfig.api.getMediaUrl(vendor2, imageId);
 
         const checkMediaUrl = async (retryCount = 0) => {
             const maxRetries = 2;
-            
+
             try {
                 if (retryCount > 0) {
-                    await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
+                    await new Promise((resolve) =>
+                        setTimeout(resolve, 1000 * retryCount)
+                    );
                 }
-                
-                const response = await fetch(mediaUrl, { 
+
+                const response = await fetch(mediaUrl, {
                     method: "HEAD",
                     cache: "no-cache",
                     headers: {
-                        'Cache-Control': 'no-cache'
-                    }
+                        "Cache-Control": "no-cache",
+                    },
                 });
-                
+
                 if (response.status === 200) {
                     setMediaUrl(mediaUrl);
                 } else if (response.status === 404) {
@@ -143,11 +167,17 @@ function ImageLoader() {
                     setMediaUrl(null);
                 }
             } catch (error) {
-                console.error(`Error checking media URL (attempt ${retryCount + 1}):`, error);
-                
+                console.error(
+                    `Error checking media URL (attempt ${retryCount + 1}):`,
+                    error
+                );
+
                 if (retryCount < maxRetries) {
                     console.log(`媒體文件檢查失敗，重試中...`);
-                    setTimeout(() => checkMediaUrl(retryCount + 1), 1500 * (retryCount + 1));
+                    setTimeout(
+                        () => checkMediaUrl(retryCount + 1),
+                        1500 * (retryCount + 1)
+                    );
                 } else {
                     setMediaUrl(null);
                 }
@@ -273,11 +303,11 @@ function ImageLoader() {
 
     return (
         <div className="flex flex-col items-center lg:justify-center h-screen bg-black relative overflow-hidden">
-            {vendor1 === "mirock" && /^\d+$/.test(vendor2) && (
+            {getVendorConfig(vendor1) && /^\d+$/.test(vendor2) && (
                 <div
                     className="absolute inset-0 opacity-75"
                     style={{
-                        backgroundImage: `url('/mirock.png')`,
+                        backgroundImage: `url('/${vendor1}.png')`, // 動態背景圖片
                         backgroundSize: "10%",
                         transform: "rotate(-45deg) scale(2.5)",
                         backgroundRepeat: "space",
@@ -355,18 +385,21 @@ function ImageLoader() {
                             )}
                         </div>
 
-                        {vendor1 === "mirock" && /^\d+$/.test(vendor2) && (
+                        {getVendorConfig(vendor1) && /^\d+$/.test(vendor2) && (
                             <div className="text-3xl text-highlight-light z-10 text-white flex flex-col items-center justify-center m-auto">
-                                <img
-                                    src={Logo}
-                                    alt="logo"
-                                    className="w-40 h-40 lg:w-48 lg:h-48 overflow-hidden cursor-pointer"
-                                    onClick={() =>
-                                        (window.location.href =
-                                            "https://www.easy4music.com/mirock")
+                                <VendorLogo
+                                    logoConfig={getVendorConfig(vendor1)?.logo}
+                                />
+                                <SocialMedia
+                                    socialLinks={
+                                        getVendorConfig(vendor1)?.socialMedia
+                                            ?.links
+                                    }
+                                    title={
+                                        getVendorConfig(vendor1)?.socialMedia
+                                            ?.title
                                     }
                                 />
-                                <SocialMedia />
                             </div>
                         )}
                     </div>
@@ -385,20 +418,24 @@ function ImageLoader() {
                     >
                         重新整理
                     </button>
-                    {vendor1 === "mirock" && /^\d+$/.test(vendor2) && (
-                        <div className="text-3xl z-10 text-highlight-light text-white flex flex-col items-center justify-center m-auto absolute bottom-0 mb-4">
-                            <img
-                                src={Logo}
-                                alt="logo"
-                                className="w-40 h-40 lg:w-48 lg:h-48 overflow-hidden cursor-pointer"
-                                onClick={() =>
-                                    (window.location.href =
-                                        "https://www.easy4music.com/mirock")
-                                }
-                            />
-                            <SocialMedia />
-                        </div>
-                    )}
+                    {(vendor1 === "mirock" || vendor1 === "tos") &&
+                        /^\d+$/.test(vendor2) && (
+                            <div className="text-3xl z-10 text-highlight-light text-white flex flex-col items-center justify-center m-auto absolute bottom-0 mb-4">
+                                <VendorLogo
+                                    logoConfig={getVendorConfig(vendor1)?.logo}
+                                />
+                                <SocialMedia
+                                    socialLinks={
+                                        getVendorConfig(vendor1)?.socialMedia
+                                            ?.links
+                                    }
+                                    title={
+                                        getVendorConfig(vendor1)?.socialMedia
+                                            ?.title
+                                    }
+                                />
+                            </div>
+                        )}
                 </div>
             )}
         </div>
